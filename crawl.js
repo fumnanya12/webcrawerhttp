@@ -29,7 +29,7 @@ async function crawlPage(baseURL,currentURL, pages){
     if(baseURLobj.hostname!==currentURLobj.hostname){
         return pages
     }
-    const normalizedCurrentURL= normalizeURL(currentURL)
+    const normalizedCurrentURL= normalizeURLslice(currentURL)
     if(pages[normalizedCurrentURL]>0){
         pages[normalizedCurrentURL]++
         return pages
@@ -54,7 +54,7 @@ async function crawlPage(baseURL,currentURL, pages){
 
        const htmlBody= await resp.text()
 
-       const nextURLs= getURLsFromHTML(htmlBody,baseURL)
+       const nextURLs= getURLsFromHTMLerror(htmlBody,baseURL)
        for(const nextURL of nextURLs){
         pages = await crawlPage(baseURL,nextURL,pages)
        }
