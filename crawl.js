@@ -1,6 +1,6 @@
 const{JSDOM} = require('jsdom')
-
-async function crawlPage(currentURL){
+//crawling a single page 
+async function crawlPagesingle(currentURL){
     console.log(`actively crawling: ${currentURL}`)
     try {
         const resp=await fetch(currentURL)
@@ -19,6 +19,49 @@ async function crawlPage(currentURL){
     } catch (error) {
         console.log(`error in fetch:${error.message},on page: ${currentURL}`)
     }
+    
+}
+
+async function crawlPage(baseURL,currentURL, pages){
+
+    const baseURLobj=new URL(baseURL)
+    const currentURLobj= new URL(currentURL)
+    if(baseURLobj.hostname!==currentURLobj.hostname){
+        return pages
+    }
+    const normalizedCurrentURL= normalizeURL(currentURL)
+    if(pages[normalizedCurrentURL]>0){
+        pages[normalizedCurrentURL]++
+        return pages
+    }
+    pages[normalizedCurrentURL] =1
+
+    console.log(`actively crawling: ${currentURL}`)
+
+    try {
+        const resp=await fetch(currentURL)
+
+        if( resp.status>399){
+            console.log(`error infetch with status code: ${resp.status} on page: ${currentURL} `)
+            return pages
+        }
+
+        const contentType= resp.headers.get("content-type")
+        if(!contentType.includes("text/html")){
+            console.log(`non html response, content type: ${contentType}, on page: ${currentURL}`)
+            return pages
+        }
+
+       const htmlBody= await resp.text()
+
+       const nextURLs= getURLsFromHTML(htmlBody,baseURL)
+       for(const nextURL of nextURLs){
+        pages = await crawlPage(baseURL,nextURL,pages)
+       }
+    } catch (error) {
+        console.log(`error in fetch:${error.message},on page: ${currentURL}`)
+    }
+    return pages
     
 }
 
@@ -94,5 +137,6 @@ module.exports = {
     normalizeURLslice,
     getURLsFromHTML,
     getURLsFromHTMLerror,
-    crawlPage
+    crawlPage,
+    crawlPagesingle
 }
