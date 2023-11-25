@@ -78,7 +78,9 @@ function getURLsFromHTML( htmlBody, baseURL){
         }
         else{
             //absolute 
+            if (linkElement.href!==""){
             url.push(linkElement.href)
+            }
         }
     }
     return url
@@ -95,6 +97,7 @@ function getURLsFromHTMLerror( htmlBody, baseURL){
                 const urlobj=new URL(`${baseURL}${linkElement.href}`)
                 url.push(urlobj.href)
             } catch (err) {
+               
                 console.log(`error with relative url: ${err.message}`)
             }
            
@@ -102,10 +105,15 @@ function getURLsFromHTMLerror( htmlBody, baseURL){
         else{
             //absolute 
             try {
+                if (linkElement.href!==""){
                 const urlobj=new URL(linkElement.href)
                 url.push(urlobj.href)
+                }
             } catch (err) {
+                console.log()
+                console.log(`URLname that cause the error:  ${linkElement.href}`)
                 console.log(`error with Absolute url: ${err.message}`)
+                console.log()
             }
         }
     }
