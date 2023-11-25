@@ -26,9 +26,9 @@ async function crawlPage(baseURL,currentURL, pages){
 
     const baseURLobj=new URL(baseURL)
     const currentURLobj= new URL(currentURL)
-    if(baseURLobj.hostname!==currentURLobj.hostname){
-        return pages
-    }
+    // if(baseURLobj.hostname!==currentURLobj.hostname){
+    //     return pages
+    // }
     const normalizedCurrentURL= normalizeURLslice(currentURL)
     if(pages[normalizedCurrentURL]>0){
         pages[normalizedCurrentURL]++
@@ -66,6 +66,30 @@ async function crawlPage(baseURL,currentURL, pages){
 }
 
 
+async function crawlimagePage(baseURL, pages){
+
+   
+
+    console.log(`actively crawling: ${baseURL}`)
+
+    try {
+        const resp=await fetch(baseURL)
+
+        
+
+       const htmlBody= await resp.text()
+
+       const nextURLs= getimageFromHTMLerror(htmlBody)
+       for(const nextURL of nextURLs){
+    console.log(`Name of image: ${nextURL} `)
+       }
+    } catch (error) {
+        console.log(`error in fetch:${error.message},on page: ${baseURL}`)
+    }
+    return pages
+    
+}
+
 
 function getURLsFromHTML( htmlBody, baseURL){
     const url=[]
@@ -90,7 +114,11 @@ function getURLsFromHTMLerror( htmlBody, baseURL){
     const url=[]
     const dom =new JSDOM(htmlBody)
     const linkElements= dom.window.document.querySelectorAll('a')
+
     for (const linkElement of linkElements){
+        // console.log(`WHat is inside:  ${linkElement}`)
+        // console.log(`***********`)
+
         if(linkElement.href.slice(0, 1) === '/') {// if the 1st character of the string is a slash the is it a relative 
             // relative 
             try {
@@ -105,20 +133,49 @@ function getURLsFromHTMLerror( htmlBody, baseURL){
         else{
             //absolute 
             try {
-                if (linkElement.href!==""){
+               
                 const urlobj=new URL(linkElement.href)
                 url.push(urlobj.href)
-                }
+               
+                    
             } catch (err) {
-                console.log()
-                console.log(`URLname that cause the error:  ${linkElement.href}`)
+              
+                console.log(`URLname that cause the error:  ${linkElement}`)
                 console.log(`error with Absolute url: ${err.message}`)
                 console.log()
             }
         }
+
     }
+
     return url
 }
+
+
+function getimageFromHTMLerror( htmlBody){
+    const url=[]
+    const dom =new JSDOM(htmlBody)
+    const linkElements= dom.window.document.querySelectorAll('img')
+
+    for (const linkElement of linkElements){
+        // console.log(`WHat is inside:  ${linkElement}`)
+        // console.log(`***********`)
+
+        
+                url.push(linkElement.src)
+               
+            
+
+    }
+
+    return url
+}
+
+
+
+
+
+
 
 //testrun
 
@@ -146,5 +203,6 @@ module.exports = {
     getURLsFromHTML,
     getURLsFromHTMLerror,
     crawlPage,
-    crawlPagesingle
+    crawlPagesingle,
+    crawlimagePage
 }

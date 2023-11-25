@@ -1,3 +1,5 @@
+
+const{crawlimagePage}=require('./crawl.js') 
 const{crawlPage}=require('./crawl.js') 
 const{crawlPagesingle}=require('./crawl.js')
 const { printReport } = require('./report.js')
@@ -15,8 +17,9 @@ const baseURL= process.argv[2]
 
 console.log(`starting crawl of ${baseURL}`)
 //crawlPagesingle(baseURL)
-const pages=await crawlPage(baseURL,baseURL,{})
-printReport(pages)
+//const pages=await crawlPage(baseURL,baseURL,{})
+//printReport(pages)
+crawlimagePage(baseURL)
 
 }
 
